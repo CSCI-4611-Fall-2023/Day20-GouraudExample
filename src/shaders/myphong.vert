@@ -12,14 +12,18 @@ in vec3 normal;
 in vec4 color;
 in vec2 texCoord;
 
-out vec3 vertPosition;
-out vec3 vertNormal;
-out vec4 vertColor;
+out vec3 positionWorld;
+out vec3 normalWorld;
+out vec4 baseColor;
 out vec2 uv;
 
 void main() 
 {
+    positionWorld = (modelMatrix * vec4(position, 1)).xyz;
+    normalWorld = (normalModelMatrix * vec4(normal, 0)).xyz;
+    baseColor = color;
+    uv = texCoord;
     
     // Required: compute the vertex position in clip coordinates
-    gl_Position = vec4(0,0,0,1);
+    gl_Position = projectionMatrix * viewMatrix * vec4(positionWorld, 1);
 }
