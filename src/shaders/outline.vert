@@ -18,8 +18,8 @@ in vec3 normal;
 void main() 
 {
     // Compute the world space vertex position and normal
-    vec3 worldPosition = (modelMatrix * vec4(position, 1)).xyz;
-    vec3 worldNormal = normalize((normalMatrix * vec4(normal, 0)).xyz);
+    vec3 positionWorld = (modelMatrix * vec4(position, 1)).xyz;
+    vec3 normalWorld = normalize((normalMatrix * vec4(normal, 0)).xyz);
 
     // TO BE ADDED
 
@@ -40,5 +40,5 @@ void main()
     // assign it to the gl_Position variable, which will be passed to the 
     // fragment shader.
 
-    gl_Position = projectionMatrix * viewMatrix * vec4(worldPosition, 1);
+    gl_Position = projectionMatrix * viewMatrix * vec4(positionWorld, 1);
 }

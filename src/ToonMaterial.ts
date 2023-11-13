@@ -38,15 +38,15 @@ export class ToonMaterial extends gfx.Material3
     private textureUniform: WebGLUniformLocation | null;
     private useTextureUniform: WebGLUniformLocation | null;
 
-    private eyePositionUniform: WebGLUniformLocation | null;
+    private eyePositionWorldUniform: WebGLUniformLocation | null;
     private modelUniform: WebGLUniformLocation | null;
+    private normalModelUniform: WebGLUniformLocation | null;
     private viewUniform: WebGLUniformLocation | null;
     private projectionUniform: WebGLUniformLocation | null;
-    private normalUniform: WebGLUniformLocation | null;
 
     private numLightsUniform: WebGLUniformLocation | null;
     private lightTypesUniform: WebGLUniformLocation | null;
-    private lightPositionsUniform: WebGLUniformLocation | null;
+    private lightPositionsWorldUniform: WebGLUniformLocation | null;
     private ambientIntensitiesUniform: WebGLUniformLocation | null;
     private diffuseIntensitiesUniform: WebGLUniformLocation | null;
     private specularIntensitiesUniform: WebGLUniformLocation | null;
@@ -86,15 +86,15 @@ export class ToonMaterial extends gfx.Material3
         this.textureUniform = ToonMaterial.shader.getUniform(this.gl, 'textureImage');
         this.useTextureUniform = ToonMaterial.shader.getUniform(this.gl, 'useTexture');
 
-        this.eyePositionUniform = ToonMaterial.shader.getUniform(this.gl, 'eyePosition');
-        this.viewUniform = ToonMaterial.shader.getUniform(this.gl, 'viewMatrix');
+        this.eyePositionWorldUniform = ToonMaterial.shader.getUniform(this.gl, 'eyePositionWorld');
         this.modelUniform = ToonMaterial.shader.getUniform(this.gl, 'modelMatrix');
+        this.normalModelUniform = ToonMaterial.shader.getUniform(this.gl, 'normalModelMatrix');
+        this.viewUniform = ToonMaterial.shader.getUniform(this.gl, 'viewMatrix');
         this.projectionUniform = ToonMaterial.shader.getUniform(this.gl, 'projectionMatrix');
-        this.normalUniform = ToonMaterial.shader.getUniform(this.gl, 'normalMatrix');
 
         this.numLightsUniform = ToonMaterial.shader.getUniform(this.gl, 'numLights');
         this.lightTypesUniform = ToonMaterial.shader.getUniform(this.gl, 'lightTypes');
-        this.lightPositionsUniform = ToonMaterial.shader.getUniform(this.gl, 'lightPositions');
+        this.lightPositionsWorldUniform = ToonMaterial.shader.getUniform(this.gl, 'lightPositionsWorld');
         this.ambientIntensitiesUniform = ToonMaterial.shader.getUniform(this.gl, 'ambientIntensities');
         this.diffuseIntensitiesUniform = ToonMaterial.shader.getUniform(this.gl, 'diffuseIntensities');
         this.specularIntensitiesUniform = ToonMaterial.shader.getUniform(this.gl, 'specularIntensities');
@@ -121,11 +121,11 @@ export class ToonMaterial extends gfx.Material3
         // Set the camera uniforms
         const cameraPosition = new gfx.Vector3();
         cameraPosition.transformPoint(camera.localToWorldMatrix);
-        this.gl.uniform3f(this.eyePositionUniform, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+        this.gl.uniform3f(this.eyePositionWorldUniform, cameraPosition.x, cameraPosition.y, cameraPosition.z);
         this.gl.uniformMatrix4fv(this.modelUniform, false, mesh.localToWorldMatrix.mat);
+        this.gl.uniformMatrix4fv(this.normalModelUniform, false, mesh.localToWorldMatrix.inverse().transpose().mat);
         this.gl.uniformMatrix4fv(this.viewUniform, false, camera.viewMatrix.mat);
         this.gl.uniformMatrix4fv(this.projectionUniform, false, camera.projectionMatrix.mat);
-        this.gl.uniformMatrix4fv(this.normalUniform, false, mesh.localToWorldMatrix.inverse().transpose().mat);
 
         // Set the material property uniforms
         this.gl.uniform3f(this.kAmbientUniform, this.ambientColor.r, this.ambientColor.g, this.ambientColor.b);
@@ -136,7 +136,7 @@ export class ToonMaterial extends gfx.Material3
         // Set the light uniforms
         this.gl.uniform1i(this.numLightsUniform, lightManager.getNumLights());
         this.gl.uniform1iv(this.lightTypesUniform, lightManager.lightTypes);
-        this.gl.uniform3fv(this.lightPositionsUniform, lightManager.lightPositions);
+        this.gl.uniform3fv(this.lightPositionsWorldUniform, lightManager.lightPositions);
         this.gl.uniform3fv(this.ambientIntensitiesUniform, lightManager.ambientIntensities);
         this.gl.uniform3fv(this.diffuseIntensitiesUniform, lightManager.diffuseIntensities);
         this.gl.uniform3fv(this.specularIntensitiesUniform, lightManager.specularIntensities);

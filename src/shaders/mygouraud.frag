@@ -12,9 +12,5 @@ out vec4 fragColor;
 
 void main() 
 {
-    fragColor = vertColor;
-
-    if (useTexture != 0) {
-        fragColor *= texture(textureImage, uv);
-    }
+    fragColor = vec4(0,0,0,1);
 }

@@ -40,9 +40,9 @@ uniform sampler2D normalMap;
 
 in vec4 vertColor;
 in vec2 uv;
-in vec3 tangentVertPosition;
-in vec3 tangentEyePosition;
-in vec3 tangentLightPositions[MAX_LIGHTS];
+in vec3 vertPositionTangent;
+in vec3 eyePositionTangent;
+in vec3 lightPositionsTangent[MAX_LIGHTS];
 
 out vec4 fragColor;
 
@@ -77,16 +77,16 @@ void main()
         // Compute the vector from the vertex position to the light
         vec3 l;
         if(lightTypes[i] == DIRECTIONAL_LIGHT)
-            l = normalize(tangentLightPositions[i]);
+            l = normalize(lightPositionsTangent[i]);
         else
-            l = normalize(tangentLightPositions[i] - tangentVertPosition);
+            l = normalize(lightPositionsTangent[i] - vertPositionTangent);
 
         // Diffuse component
         float diffuseComponent = max(dot(n, l), 0.0);
         illumination += diffuseComponent * kDiffuse * diffuseIntensities[i];
 
         // Compute the vector from the vertex to the eye
-        vec3 e = normalize(tangentEyePosition - tangentVertPosition);
+        vec3 e = normalize(eyePositionTangent - vertPositionTangent);
 
         // Compute the light vector reflected about the normal
         vec3 r = reflect(-l, n);

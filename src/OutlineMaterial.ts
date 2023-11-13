@@ -25,9 +25,9 @@ export class OutlineMaterial extends gfx.Material3
     public static shader = new gfx.ShaderProgram(outlineVertexShader, outlineFragmentShader);
 
     private modelUniform: WebGLUniformLocation | null;
+    private normalModelUniform: WebGLUniformLocation | null;
     private viewUniform: WebGLUniformLocation | null;
     private projectionUniform: WebGLUniformLocation | null;
-    private normalUniform: WebGLUniformLocation | null;
     private colorUniform: WebGLUniformLocation | null;
     private thicknessUniform: WebGLUniformLocation | null;
 
@@ -46,8 +46,8 @@ export class OutlineMaterial extends gfx.Material3
         
         this.viewUniform = OutlineMaterial.shader.getUniform(this.gl, 'viewMatrix');
         this.modelUniform = OutlineMaterial.shader.getUniform(this.gl, 'modelMatrix');
+        this.normalModelUniform = OutlineMaterial.shader.getUniform(this.gl, 'normalModelMatrix');
         this.projectionUniform = OutlineMaterial.shader.getUniform(this.gl, 'projectionMatrix');
-        this.normalUniform = OutlineMaterial.shader.getUniform(this.gl, 'normalMatrix');
         this.colorUniform = OutlineMaterial.shader.getUniform(this.gl, 'materialColor');
         this.thicknessUniform = OutlineMaterial.shader.getUniform(this.gl, 'thickness');
 
@@ -90,9 +90,9 @@ export class OutlineMaterial extends gfx.Material3
 
         // Set the camera uniforms
         this.gl.uniformMatrix4fv(this.modelUniform, false, mesh.localToWorldMatrix.mat);
+        this.gl.uniformMatrix4fv(this.normalModelUniform, false, mesh.localToWorldMatrix.inverse().transpose().mat);
         this.gl.uniformMatrix4fv(this.viewUniform, false, camera.viewMatrix.mat);
         this.gl.uniformMatrix4fv(this.projectionUniform, false, camera.projectionMatrix.mat);
-        this.gl.uniformMatrix4fv(this.normalUniform, false, mesh.localToWorldMatrix.inverse().transpose().mat);
 
         // Set the material property uniforms
         this.gl.uniform4f(this.colorUniform, this.color.r, this.color.g, this.color.b, this.color.a);

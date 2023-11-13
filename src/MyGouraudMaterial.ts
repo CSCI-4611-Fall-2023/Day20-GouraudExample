@@ -35,7 +35,7 @@ export class MyGouraudMaterial extends gfx.Material3
     private textureUniform: WebGLUniformLocation | null;
     private useTextureUniform: WebGLUniformLocation | null;
 
-    private eyePositionUniform: WebGLUniformLocation | null;
+    private eyePositionWorldUniform: WebGLUniformLocation | null;
     private modelUniform: WebGLUniformLocation | null;
     private viewUniform: WebGLUniformLocation | null;
     private projectionUniform: WebGLUniformLocation | null;
@@ -43,7 +43,7 @@ export class MyGouraudMaterial extends gfx.Material3
 
     private numLightsUniform: WebGLUniformLocation | null;
     private lightTypesUniform: WebGLUniformLocation | null;
-    private lightPositionsUniform: WebGLUniformLocation | null;
+    private lightPositionsWorldUniform: WebGLUniformLocation | null;
     private ambientIntensitiesUniform: WebGLUniformLocation | null;
     private diffuseIntensitiesUniform: WebGLUniformLocation | null;
     private specularIntensitiesUniform: WebGLUniformLocation | null;
@@ -73,15 +73,15 @@ export class MyGouraudMaterial extends gfx.Material3
         this.textureUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'textureImage');
         this.useTextureUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'useTexture');
 
-        this.eyePositionUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'eyePosition');
-        this.viewUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'viewMatrix');
         this.modelUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'modelMatrix');
+        this.normalUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'normalModelMatrix');
+        this.viewUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'viewMatrix');
         this.projectionUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'projectionMatrix');
-        this.normalUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'normalMatrix');
 
+        this.eyePositionWorldUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'eyePositionWorld');
         this.numLightsUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'numLights');
         this.lightTypesUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'lightTypes');
-        this.lightPositionsUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'lightPositions');
+        this.lightPositionsWorldUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'lightPositionsWorld');
         this.ambientIntensitiesUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'ambientIntensities');
         this.diffuseIntensitiesUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'diffuseIntensities');
         this.specularIntensitiesUniform = MyGouraudMaterial.shader.getUniform(this.gl, 'specularIntensities');
@@ -102,15 +102,15 @@ export class MyGouraudMaterial extends gfx.Material3
         // Switch to this shader
         this.gl.useProgram(MyGouraudMaterial.shader.getProgram());
 
-        // Set the camera uniforms
-        const worldMatrix = mesh.localToWorldMatrix;
-        const cameraPosition = new gfx.Vector3();
-        cameraPosition.transformPoint(camera.localToWorldMatrix);
-        this.gl.uniform3f(this.eyePositionUniform, cameraPosition.x, cameraPosition.y, cameraPosition.z);
-        this.gl.uniformMatrix4fv(this.modelUniform, false, worldMatrix.mat);
+        // Set the camera and model matrix uniforms
+        const modelMatrix = mesh.localToWorldMatrix;
+        const normalModelMatrix = modelMatrix.inverse().transpose();
+        const cameraPositionWorld = camera.localToWorldMatrix.transformPoint(new gfx.Vector3(0,0,0));
+        this.gl.uniform3f(this.eyePositionWorldUniform, cameraPositionWorld.x, cameraPositionWorld.y, cameraPositionWorld.z);
+        this.gl.uniformMatrix4fv(this.modelUniform, false, modelMatrix.mat);
         this.gl.uniformMatrix4fv(this.viewUniform, false, camera.viewMatrix.mat);
         this.gl.uniformMatrix4fv(this.projectionUniform, false, camera.projectionMatrix.mat);
-        this.gl.uniformMatrix4fv(this.normalUniform, false, worldMatrix.inverse().transpose().mat);
+        this.gl.uniformMatrix4fv(this.normalUniform, false, normalModelMatrix.mat);
 
         // Set the material property uniforms
         this.gl.uniform3f(this.kAmbientUniform, this.ambientColor.r, this.ambientColor.g, this.ambientColor.b);
@@ -121,7 +121,7 @@ export class MyGouraudMaterial extends gfx.Material3
         // Set the light uniforms
         this.gl.uniform1i(this.numLightsUniform, lightManager.getNumLights());
         this.gl.uniform1iv(this.lightTypesUniform, lightManager.lightTypes);
-        this.gl.uniform3fv(this.lightPositionsUniform, lightManager.lightPositions);
+        this.gl.uniform3fv(this.lightPositionsWorldUniform, lightManager.lightPositions);
         this.gl.uniform3fv(this.ambientIntensitiesUniform, lightManager.ambientIntensities);
         this.gl.uniform3fv(this.diffuseIntensitiesUniform, lightManager.diffuseIntensities);
         this.gl.uniform3fv(this.specularIntensitiesUniform, lightManager.specularIntensities);

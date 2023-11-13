@@ -19,13 +19,13 @@ precision mediump float;
 const int MAX_LIGHTS = 8;
 
 uniform int numLights;
-uniform vec3 lightPositions[MAX_LIGHTS];
-uniform vec3 eyePosition;
+uniform vec3 lightPositionsWorld[MAX_LIGHTS];
+uniform vec3 eyePositionWorld;
 
 uniform mat4 modelMatrix;
+uniform mat4 normalModelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
-uniform mat4 normalMatrix;
 
 in vec3 position;
 in vec3 normal;
@@ -35,9 +35,9 @@ in vec2 texCoord;
 
 out vec4 vertColor;
 out vec2 uv;
-out vec3 tangentVertPosition;
-out vec3 tangentEyePosition;
-out vec3 tangentLightPositions[MAX_LIGHTS];
+out vec3 vertPositionTangent;
+out vec3 eyePositionTangent;
+out vec3 lightPositionsTangent[MAX_LIGHTS];
 
 void main() 
 {
@@ -46,7 +46,7 @@ void main()
     uv = texCoord.xy; 
 
     // Compute the world vertex position
-    vec3 worldPosition = (modelMatrix * vec4(position, 1)).xyz;   
+    vec3 vertPositionWorld = (modelMatrix * vec4(position, 1)).xyz;   
 
     // TO BE ADDED
     // This line of code sets the TBN to an identity matrix.
@@ -58,15 +58,15 @@ void main()
     mat3 tbn = mat3(1.0f);
 
     // Compute the tangent space vertex and view positions
-    tangentVertPosition = tbn * worldPosition;
-    tangentEyePosition = tbn * eyePosition;
+    vertPositionTangent = tbn * vertPositionWorld;
+    eyePositionTangent = tbn * eyePositionWorld;
 
     // Compute the tangent space light positions
     for(int i=0; i < numLights; i++)
     {
-        tangentLightPositions[i] = tbn * lightPositions[i];
+        lightPositionsTangent[i] = tbn * lightPositionsTangent[i];
     }
     
     // Compute the projected vertex position
-    gl_Position = projectionMatrix * viewMatrix * vec4(worldPosition, 1);
+    gl_Position = projectionMatrix * viewMatrix * vec4(vertPositionWorld, 1);
 }

@@ -61,13 +61,13 @@ export class MeshViewer extends gfx.GfxApp
         
         this.models = [];
 
+        this.wireframeMaterial = new gfx.WireframeMaterial();
+        this.unlitMaterial = new gfx.UnlitMaterial();
         this.gouradMaterial = new MyGouraudMaterial();
         this.phongMaterial = new MyPhongMaterial();
-        this.unlitMaterial = new gfx.UnlitMaterial();
-        this.wireframeMaterial = new gfx.WireframeMaterial();
         this.normalMapMaterial = new NormalMapMaterial();
 
-        // Toon shading mode actually uses two separate shaders, one for the 
+        // Toon shading mode uses two separate shaders, one for the 
         // the silhouette and one for the mesh. The toon material is wrapped 
         // within the outline material.
         this.toonMaterial = new ToonMaterial(
@@ -112,11 +112,12 @@ export class MeshViewer extends gfx.GfxApp
         renderStyleController.name('');
         renderStyleController.onChange(()=>{this.changeRenderStyle()});
 
-        const toonControls = gui.addFolder('Toon Options');
+        const toonControls = gui.addFolder('Toon Outline Options');
         toonControls.open();
         toonControls.add(this, 'toonOutlineThickness')
             .min(0)
             .max(0.05)
+            .name('Thickness')
             .onChange(()=>{ this.outlineMaterial.thickness = this.toonOutlineThickness; });
 
         const modelControls = gui.addFolder('Model');

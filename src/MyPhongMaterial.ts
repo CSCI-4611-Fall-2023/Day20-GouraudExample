@@ -35,15 +35,15 @@ export class MyPhongMaterial extends gfx.Material3
     private textureUniform: WebGLUniformLocation | null;
     private useTextureUniform: WebGLUniformLocation | null;
 
-    private eyePositionUniform: WebGLUniformLocation | null;
     private modelUniform: WebGLUniformLocation | null;
+    private normalModelUniform: WebGLUniformLocation | null;
     private viewUniform: WebGLUniformLocation | null;
     private projectionUniform: WebGLUniformLocation | null;
-    private normalUniform: WebGLUniformLocation | null;
 
+    private eyePositionWorldUniform: WebGLUniformLocation | null;
     private numLightsUniform: WebGLUniformLocation | null;
     private lightTypesUniform: WebGLUniformLocation | null;
-    private lightPositionsUniform: WebGLUniformLocation | null;
+    private lightPositionsWorldUniform: WebGLUniformLocation | null;
     private ambientIntensitiesUniform: WebGLUniformLocation | null;
     private diffuseIntensitiesUniform: WebGLUniformLocation | null;
     private specularIntensitiesUniform: WebGLUniformLocation | null;
@@ -73,15 +73,15 @@ export class MyPhongMaterial extends gfx.Material3
         this.textureUniform = MyPhongMaterial.shader.getUniform(this.gl, 'textureImage');
         this.useTextureUniform = MyPhongMaterial.shader.getUniform(this.gl, 'useTexture');
 
-        this.eyePositionUniform = MyPhongMaterial.shader.getUniform(this.gl, 'eyePosition');
-        this.viewUniform = MyPhongMaterial.shader.getUniform(this.gl, 'viewMatrix');
         this.modelUniform = MyPhongMaterial.shader.getUniform(this.gl, 'modelMatrix');
+        this.normalModelUniform = MyPhongMaterial.shader.getUniform(this.gl, 'normalModelMatrix');
+        this.viewUniform = MyPhongMaterial.shader.getUniform(this.gl, 'viewMatrix');
         this.projectionUniform = MyPhongMaterial.shader.getUniform(this.gl, 'projectionMatrix');
-        this.normalUniform = MyPhongMaterial.shader.getUniform(this.gl, 'normalMatrix');
 
+        this.eyePositionWorldUniform = MyPhongMaterial.shader.getUniform(this.gl, 'eyePositionWorld');
         this.numLightsUniform = MyPhongMaterial.shader.getUniform(this.gl, 'numLights');
         this.lightTypesUniform = MyPhongMaterial.shader.getUniform(this.gl, 'lightTypes');
-        this.lightPositionsUniform = MyPhongMaterial.shader.getUniform(this.gl, 'lightPositions');
+        this.lightPositionsWorldUniform = MyPhongMaterial.shader.getUniform(this.gl, 'lightPositionsWorld');
         this.ambientIntensitiesUniform = MyPhongMaterial.shader.getUniform(this.gl, 'ambientIntensities');
         this.diffuseIntensitiesUniform = MyPhongMaterial.shader.getUniform(this.gl, 'diffuseIntensities');
         this.specularIntensitiesUniform = MyPhongMaterial.shader.getUniform(this.gl, 'specularIntensities');
@@ -102,15 +102,14 @@ export class MyPhongMaterial extends gfx.Material3
         // Switch to this shader
         this.gl.useProgram(MyPhongMaterial.shader.getProgram());
 
-        // Set the camera uniforms
-        const worldMatrix = mesh.localToWorldMatrix;
-        const cameraPosition = new gfx.Vector3();
-        cameraPosition.transformPoint(camera.localToWorldMatrix);
-        this.gl.uniform3f(this.eyePositionUniform, cameraPosition.x, cameraPosition.y, cameraPosition.z);
-        this.gl.uniformMatrix4fv(this.modelUniform, false, worldMatrix.mat);
+        // Set the camera and model matrix uniforms
+        const modelMatrix = mesh.localToWorldMatrix;
+        const normalModelMatrix = modelMatrix.inverse().transpose();
+        const cameraPositionWorld = camera.localToWorldMatrix.transformPoint(new gfx.Vector3(0,0,0));
+        this.gl.uniformMatrix4fv(this.modelUniform, false, modelMatrix.mat);
+        this.gl.uniformMatrix4fv(this.normalModelUniform, false, normalModelMatrix.mat);
         this.gl.uniformMatrix4fv(this.viewUniform, false, camera.viewMatrix.mat);
         this.gl.uniformMatrix4fv(this.projectionUniform, false, camera.projectionMatrix.mat);
-        this.gl.uniformMatrix4fv(this.normalUniform, false, worldMatrix.inverse().transpose().mat);
 
         // Set the material property uniforms
         this.gl.uniform3f(this.kAmbientUniform, this.ambientColor.r, this.ambientColor.g, this.ambientColor.b);
@@ -119,9 +118,10 @@ export class MyPhongMaterial extends gfx.Material3
         this.gl.uniform1f(this.shininessUniform, this.shininess);
 
         // Set the light uniforms
+        this.gl.uniform3f(this.eyePositionWorldUniform, cameraPositionWorld.x, cameraPositionWorld.y, cameraPositionWorld.z);
         this.gl.uniform1i(this.numLightsUniform, lightManager.getNumLights());
         this.gl.uniform1iv(this.lightTypesUniform, lightManager.lightTypes);
-        this.gl.uniform3fv(this.lightPositionsUniform, lightManager.lightPositions);
+        this.gl.uniform3fv(this.lightPositionsWorldUniform, lightManager.lightPositions);
         this.gl.uniform3fv(this.ambientIntensitiesUniform, lightManager.ambientIntensities);
         this.gl.uniform3fv(this.diffuseIntensitiesUniform, lightManager.diffuseIntensities);
         this.gl.uniform3fv(this.specularIntensitiesUniform, lightManager.specularIntensities);
