@@ -26,17 +26,26 @@ uniform vec3 kDiffuse;
 uniform vec3 kSpecular;
 uniform float shininess;
 
+// per-vertex data
 in vec3 position;
 in vec3 normal;
 in vec4 color;
 in vec2 texCoord;
 
+// data we want to send to the rasterizer and eventually the fragment shader
 out vec4 vertColor;
 out vec2 uv;
 
 void main() 
 {
+    
+
+
+    //vec4 positionWorld = modelMatrix * vec4(position, 1);
+    //vec4 positionEye = viewMatrix * positionWorld;
+    //vec4 positionScreen = projectionMatrix * positionEye;
+    vec4 positionScreen = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1);
 
     // Required: compute the vertex position in clip coordinates
-    gl_Position = vec4(0,0,0,1);
+    gl_Position = positionScreen;
 }
