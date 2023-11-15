@@ -49,7 +49,7 @@ export class MeshViewer extends gfx.GfxApp
 
         this.renderStyle = 'Wireframe';
         this.toonOutlineThickness = 0.01;
-        this.model = 'bunny.obj';
+        this.model = 'sphere.obj';
         this.texture = 'None';
         this.lightType = 'Point Light';
         
@@ -171,7 +171,7 @@ export class MeshViewer extends gfx.GfxApp
         this.pointLight.position.set(.75, 1.1, 1);
         this.scene.add(this.pointLight);
 
-        this.directionalLight.position.set(.75, 1.1, 1)
+        this.directionalLight.position.set(0, 1.1, 1)
         this.directionalLight.visible = false;
         this.scene.add(this.directionalLight);
 
@@ -205,6 +205,7 @@ export class MeshViewer extends gfx.GfxApp
 
         this.models[0].visible = true;
         this.changeRenderStyle();
+        this.changeModel();
     }
     update(deltaTime: number): void 
     {
