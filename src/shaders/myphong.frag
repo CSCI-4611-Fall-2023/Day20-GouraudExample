@@ -49,7 +49,7 @@ void main()
 
         vec3 eWorld = normalize(eyePositionWorld - vertPositionWorld.xyz);
         vec3 rWorld = normalize(reflect(-lWorld, vertNormalWorld));
-        vec3 specularComponent = kSpecular * specularIntensities[i] * max(pow(dot(eWorld, rWorld), shininess), 0.0);
+        vec3 specularComponent = kSpecular * specularIntensities[i] * pow(max(dot(eWorld, rWorld), 0.0), shininess);
 
         totalIllumination += ambientComponent + diffuseComponent + specularComponent;
     }
